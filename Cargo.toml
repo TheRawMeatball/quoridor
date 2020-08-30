@@ -1,5 +1,5 @@
 [workspace]
-members = ["./quoridor_gui", "./tbmp_core", "./remote_channel", "./tbmp_remote_agent", "./quoridor_core"]
+members = ["./quoridor_gui", "./quoridor_core"]
 
 [profile.dev.package."*"]
 opt-level = 3

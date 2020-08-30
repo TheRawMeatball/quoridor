@@ -1,4 +1,4 @@
-use tbmp_core::*;
+use tbmp::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,13 +1,13 @@
 use bevy::{prelude::*, winit::WinitConfig};
 use quoridor_core::*;
-use tbmp_core::*;
+use tbmp::*;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 mod components;
 mod constants;
 mod systems;
-pub use components::*;
-pub use constants::*;
+pub(crate) use components::*;
+pub(crate) use constants::*;
 use systems::*;
 
 pub struct MoveEvent(Move);
@@ -20,12 +20,12 @@ fn main() {
     let core;
 
     if args.contains(&String::from("--host")) {
-        let mut cores = tbmp_core::new_game::<Quoridor>();
+        let mut cores = tbmp::new_game::<Quoridor>();
         core = cores.remove(0);
-        tbmp_remote_agent::host(cores.remove(0), PORT);
+        tbmp::remote_agent::host(cores.remove(0), PORT);
     } else if args.contains(&String::from("--connect")) {
         core =
-            tbmp_remote_agent::connect(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), PORT));
+            tbmp::remote_agent::connect(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), PORT));
     } else {
         println!("Specify desired outcome");
         return;
