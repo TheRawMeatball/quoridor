@@ -19,9 +19,9 @@ fn main() {
     let core;
 
     if args.contains(&String::from("--host")) {
-        let (c1, c2) = quoridor_core::new_game::<FreeRulebook>();
-        core = c1;
-        quoridor_remote_agent::host(c2, PORT);
+        let mut cores = quoridor_core::new_game::<FreeRulebook>();
+        core = cores.remove(0);
+        quoridor_remote_agent::host(cores.remove(0), PORT);
     } else if args.contains(&String::from("--connect")) {
         core =
             quoridor_remote_agent::connect(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), PORT));
@@ -53,4 +53,5 @@ fn main() {
         .add_plugin(GameComponentsPlugin)
         .add_plugin(GameSystemsPlugin)
         .run();
+
 }
