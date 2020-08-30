@@ -3,7 +3,7 @@ use crate::*;
 pub fn input_system(
     mut state: ResMut<BoardState>,
     board_materials: Res<BoardMaterials>,
-    game: Res<Game<FreeRulebook>>,
+    game: Res<Quoridor>,
     side: Res<u8>,
     mut moves: ResMut<Events<MoveEvent>>,
     mut interaction_query: Query<(
@@ -88,7 +88,7 @@ pub fn input_system(
 pub fn board_update_system(
     state: Res<BoardState>,
     board_materials: Res<BoardMaterials>,
-    game: Res<Game<FreeRulebook>>,
+    game: Res<Quoridor>,
     side: Res<u8>,
     mut query: Query<(
         &Button,

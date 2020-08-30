@@ -1,5 +1,6 @@
 use bevy::{prelude::*, winit::WinitConfig};
 use quoridor_core::*;
+use tbmp_core::*;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 mod components;
@@ -19,12 +20,12 @@ fn main() {
     let core;
 
     if args.contains(&String::from("--host")) {
-        let mut cores = quoridor_core::new_game::<FreeRulebook>();
+        let mut cores = tbmp_core::new_game::<Quoridor>();
         core = cores.remove(0);
-        quoridor_remote_agent::host(cores.remove(0), PORT);
+        tbmp_remote_agent::host(cores.remove(0), PORT);
     } else if args.contains(&String::from("--connect")) {
         core =
-            quoridor_remote_agent::connect(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), PORT));
+            tbmp_remote_agent::connect(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), PORT));
     } else {
         println!("Specify desired outcome");
         return;
@@ -33,7 +34,7 @@ fn main() {
     let msg = core.event_channel.recv().unwrap();
 
     let (game, side) = match msg {
-        QuoridorEvent::GameStart(game, side) => (game, side),
+        GameEvent::GameStart(game, side) => (game, side),
         _ => unreachable!(),
     };
 

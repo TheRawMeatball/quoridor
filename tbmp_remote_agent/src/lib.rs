@@ -1,7 +1,7 @@
-use quoridor_core::*;
+use tbmp_core::*;
 use std::net::*;
 
-pub fn connect<Rb: Rulebook>(addr: SocketAddr) -> AgentCore<Rb> {
+pub fn connect<G: Game>(addr: SocketAddr) -> AgentCore<G> {
     let (tx, rx) = remote_channel::connect(addr).unwrap();
     AgentCore {
         move_channel: tx,
@@ -9,6 +9,6 @@ pub fn connect<Rb: Rulebook>(addr: SocketAddr) -> AgentCore<Rb> {
     }
 }
 
-pub fn host<Rb: Rulebook>(core: AgentCore<Rb>, socket: u16) {
+pub fn host<G: Game>(core: AgentCore<G>, socket: u16) {
     remote_channel::offer_connection(core.move_channel, core.event_channel, socket).unwrap();
 }

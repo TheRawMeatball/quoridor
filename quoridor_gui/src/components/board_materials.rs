@@ -12,7 +12,7 @@ pub struct BoardMaterials {
 impl FromResources for BoardMaterials {
     fn from_resources(resources: &Resources) -> Self {
         let mut materials = resources.get_mut::<Assets<ColorMaterial>>().unwrap();
-        let player_count = resources.get_mut::<Game<FreeRulebook>>().unwrap().player_count;
+        let player_count = resources.get_mut::<Quoridor>().unwrap().player_count;
 
         BoardMaterials {
             base_mat_handle: materials.add(Color::rgb(0.08, 0.01, 0.003).into()),

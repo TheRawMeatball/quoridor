@@ -1,16 +1,16 @@
 use crate::*;
 
 pub fn quoridor_system(
-    core: Res<AgentCore<FreeRulebook>>,
-    mut game: ResMut<Game<FreeRulebook>>,
+    core: Res<AgentCore<Quoridor>>,
+    mut game: ResMut<Quoridor>,
     side: Res<u8>,
     mut state: Local<MoveEventListenerState>,
     moves: Res<Events<MoveEvent>>,
 ) {
     if let Ok(event) = core.event_channel.try_recv() {
         match event {
-            QuoridorEvent::MoveHappened(qmove) => {
-                FreeRulebook::apply_move(&mut game, qmove);
+            GameEvent::MoveHappened(qmove) => {
+                game.apply_move(qmove);
             }
             //QuoridorEvent::InvalidMove => {}
             //QuoridorEvent::OpponentQuit => {}
