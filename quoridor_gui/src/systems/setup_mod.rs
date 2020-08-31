@@ -113,7 +113,6 @@ pub fn setup(mut commands: Commands, board_mats: ResMut<BoardMaterials>) {
                             .with(Wall::Horizontal((x, 0).into()));
 
                         for y in 0..9 {
-                            println!("Node spawned for {:?}", (x, y));
                             parent
                                 // Node
                                 .spawn(ButtonComponents {
@@ -162,5 +161,4 @@ pub fn setup(mut commands: Commands, board_mats: ResMut<BoardMaterials>) {
                     .with_children(|parent| wall_func(parent, x + 1));
             }
         });
-    println!("setup done")
 }
