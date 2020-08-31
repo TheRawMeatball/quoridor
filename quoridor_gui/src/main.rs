@@ -1,6 +1,6 @@
 use bevy::{prelude::*, winit::WinitConfig};
 use quoridor_core::*;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::SocketAddr;
 use tbmp::*;
 
 mod components;

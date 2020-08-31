@@ -106,7 +106,7 @@ impl Quoridor {
                 return Ok(());
             }
         }
-        
+
         if current_pos.x != 8
             && !visited.contains(&(current_pos.x + 1, current_pos.y).into())
             && self
@@ -121,7 +121,7 @@ impl Quoridor {
                 return Ok(());
             }
         }
-        
+
         if current_pos.y != 0
             && !visited.contains(&(current_pos.x, current_pos.y - 1).into())
             && self
@@ -136,7 +136,7 @@ impl Quoridor {
                 return Ok(());
             }
         }
-        
+
         if current_pos.y != 8
             && !visited.contains(&(current_pos.x, current_pos.y + 1).into())
             && self
