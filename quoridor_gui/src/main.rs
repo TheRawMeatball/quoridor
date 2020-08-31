@@ -24,7 +24,7 @@ fn main() {
         core = cores.remove(0);
         tbmp::remote_agent::host(cores.remove(0), PORT);
     } else if args.contains(&String::from("--connect")) {
-        core = tbmp::remote_agent::connect(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), PORT));
+        core = tbmp::remote_agent::connect(SocketAddr::new(args[2].parse().unwrap(), PORT));
     } else {
         println!("Specify desired outcome");
         return;
