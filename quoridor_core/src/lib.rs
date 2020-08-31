@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use tbmp::*;
 use std::collections::hash_set::HashSet;
+use tbmp::*;
 
 #[derive(Copy, Clone, Hash, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Position {
@@ -36,11 +36,7 @@ pub struct Quoridor {
 }
 
 impl Quoridor {
-    fn check_movable(
-        &self,
-        pawn_pos: Position,
-        pos: Position,
-    ) -> Result<(), ()> {
+    fn check_movable(&self, pawn_pos: Position, pos: Position) -> Result<(), ()> {
         match (
             pawn_pos.x as i8 - pos.x as i8,
             pawn_pos.y as i8 - pos.y as i8,
@@ -82,6 +78,82 @@ impl Quoridor {
             _ => Err(()),
         }
     }
+
+    fn check_reach(
+        &self,
+        current_pos: Position,
+        target_pos: Position,
+        visited: &mut HashSet<Position>,
+    ) -> Result<(), ()> {
+        visited.insert(current_pos);
+        //println!("visiting {:?}", current_pos);
+        //println!("visited: {:?}", visited);
+        if current_pos == target_pos {
+            return Ok(());
+        }
+
+        if current_pos.x != 0
+            && !visited.contains(&(current_pos.x - 1, current_pos.y).into())
+            && self
+                .check_movable(current_pos, (current_pos.x - 1, current_pos.y).into())
+                .is_ok()
+        {
+            if let Ok(_) = self.check_reach(
+                (current_pos.x - 1, current_pos.y).into(),
+                target_pos,
+                visited,
+            ) {
+                return Ok(());
+            }
+        }
+        
+        if current_pos.x != 8
+            && !visited.contains(&(current_pos.x + 1, current_pos.y).into())
+            && self
+                .check_movable(current_pos, (current_pos.x + 1, current_pos.y).into())
+                .is_ok()
+        {
+            if let Ok(_) = self.check_reach(
+                (current_pos.x + 1, current_pos.y).into(),
+                target_pos,
+                visited,
+            ) {
+                return Ok(());
+            }
+        }
+        
+        if current_pos.y != 0
+            && !visited.contains(&(current_pos.x, current_pos.y - 1).into())
+            && self
+                .check_movable(current_pos, (current_pos.x, current_pos.y - 1).into())
+                .is_ok()
+        {
+            if let Ok(_) = self.check_reach(
+                (current_pos.x, current_pos.y - 1).into(),
+                target_pos,
+                visited,
+            ) {
+                return Ok(());
+            }
+        }
+        
+        if current_pos.y != 8
+            && !visited.contains(&(current_pos.x, current_pos.y + 1).into())
+            && self
+                .check_movable(current_pos, (current_pos.x, current_pos.y + 1).into())
+                .is_ok()
+        {
+            if let Ok(_) = self.check_reach(
+                (current_pos.x, current_pos.y + 1).into(),
+                target_pos,
+                visited,
+            ) {
+                return Ok(());
+            }
+        }
+
+        Err(())
+    }
 }
 
 impl Game for Quoridor {
@@ -92,7 +164,7 @@ impl Game for Quoridor {
         match qmove {
             Move::PlaceWall(wall) => match wall {
                 Wall::Horizontal(pos) => {
-                    if pos.x == 0 || pos.x == 8 || pos.y == 0 || pos.y == 8 {
+                    if pos.x == 0 || pos.x == 9 || pos.y == 0 || pos.y == 9 {
                         Err(())
                     } else {
                         if !self.walls.contains(&Wall::Vertical(pos))
@@ -103,14 +175,34 @@ impl Game for Quoridor {
                                 .walls
                                 .contains(&Wall::Horizontal((pos.x + 1, pos.y).into()))
                         {
-                            Ok(())
+                            let mut hypothetical = Clone::clone(self);
+                            hypothetical.walls.insert(wall);
+                            (0u8..9)
+                                .find(|x| {
+                                    hypothetical
+                                        .check_reach(
+                                            self.pawn_positions[0],
+                                            (*x, 8).into(),
+                                            &mut HashSet::new(),
+                                        )
+                                        .is_ok()
+                                        && hypothetical
+                                            .check_reach(
+                                                self.pawn_positions[1],
+                                                (*x, 0).into(),
+                                                &mut HashSet::new(),
+                                            )
+                                            .is_ok()
+                                })
+                                .map(|_| ())
+                                .ok_or(())
                         } else {
                             Err(())
                         }
                     }
                 }
                 Wall::Vertical(pos) => {
-                    if pos.x == 0 || pos.x == 8 || pos.y == 0 || pos.y == 8 {
+                    if pos.x == 0 || pos.x == 9 || pos.y == 0 || pos.y == 9 {
                         Err(())
                     } else {
                         if !self.walls.contains(&Wall::Horizontal(pos))
@@ -121,7 +213,27 @@ impl Game for Quoridor {
                                 .walls
                                 .contains(&Wall::Vertical((pos.x, pos.y + 1).into()))
                         {
-                            Ok(())
+                            let mut hypothetical = Clone::clone(self);
+                            hypothetical.walls.insert(wall);
+                            (0u8..9)
+                                .find(|x| {
+                                    hypothetical
+                                        .check_reach(
+                                            self.pawn_positions[0],
+                                            (*x, 8).into(),
+                                            &mut HashSet::new(),
+                                        )
+                                        .is_ok()
+                                        && hypothetical
+                                            .check_reach(
+                                                self.pawn_positions[1],
+                                                (*x, 0).into(),
+                                                &mut HashSet::new(),
+                                            )
+                                            .is_ok()
+                                })
+                                .map(|_| ())
+                                .ok_or(())
                         } else {
                             Err(())
                         }
@@ -130,14 +242,10 @@ impl Game for Quoridor {
             },
             Move::MovePawn(pawn_id, pos) => {
                 let pawn_pos = self.pawn_positions[pawn_id as usize];
-                if let Ok(_) = self.check_movable(pawn_pos, pos)
-                {
-                    if self.pawn_positions.contains(&pawn_pos) {
+                if let Ok(_) = self.check_movable(pawn_pos, pos) {
+                    if self.pawn_positions.contains(&pos) {
                         Err(())
-                    }
-                    else {
-                        //TODO: PATHFINDING
-
+                    } else {
                         Ok(())
                     }
                 } else {
