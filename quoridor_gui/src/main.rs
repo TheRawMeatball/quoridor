@@ -41,6 +41,11 @@ fn main() {
         .add_resource(WinitConfig {
             return_from_run: true,
         })
+        .add_resource(WindowDescriptor {
+            width: 720,
+            height: 720,
+            ..Default::default()
+        })
         .add_default_plugins()
         .add_resource(core)
         .add_resource(game)
