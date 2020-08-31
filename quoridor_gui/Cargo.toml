@@ -9,5 +9,6 @@ edition = "2018"
 [dependencies]
 quoridor_core = { path = "../quoridor_core" }
 tbmp = { git = "https://github.com/TheRawMeatball/tbmp" }
+#tbmp = { path = "../../tbmp/tbmp" }
 bevy = { git = "https://github.com/therawmeatball/bevy" }
 rand = "0.7.2"

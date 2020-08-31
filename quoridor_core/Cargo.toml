@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 tbmp = { git = "https://github.com/TheRawMeatball/tbmp" }
+#tbmp = { path = "../../tbmp/tbmp" }
 serde = { version = "1.0", features = ["derive"] }
