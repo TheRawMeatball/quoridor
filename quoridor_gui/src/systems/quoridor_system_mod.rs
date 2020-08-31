@@ -12,9 +12,9 @@ pub fn quoridor_system(
             GameEvent::MoveHappened(qmove) => {
                 game.apply_move(qmove);
             }
-            //QuoridorEvent::InvalidMove => {}
-            //QuoridorEvent::OpponentQuit => {}
-            //QuoridorEvent::GameEnd(_) => {}
+            GameEvent::InvalidMove => {}
+            //GameEvent::OpponentQuit => {}
+            //GameEvent::GameEnd(_) => {}
             _ => {}
         }
     }

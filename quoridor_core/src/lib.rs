@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use tbmp::*;
-use serde::{Serialize, Deserialize};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Position {
@@ -22,15 +22,7 @@ pub enum Wall {
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Move {
     PlaceWall(Wall),
-    MovePawn(Position),
-}
-
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum PawnMovement {
-    Up,
-    Down,
-    Left,
-    Right,
+    MovePawn(u8, Position),
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -42,13 +34,88 @@ pub struct Quoridor {
     pub player_count: u8,
 }
 
-
 impl Game for Quoridor {
-
     type Move = Move;
 
-    fn validate_move(&self, _: Move) -> Result<(), ()> {
-        Ok(())
+    fn validate_move(&self, qmove: Move) -> Result<(), ()> {
+        match qmove {
+            Move::PlaceWall(wall) => match wall {
+                Wall::Horizontal(pos) => {
+                    if !self.walls.contains(&Wall::Vertical(pos))
+                        && !self
+                            .walls
+                            .contains(&Wall::Horizontal((pos.x.wrapping_sub(1), pos.y).into()))
+                        && !self
+                            .walls
+                            .contains(&Wall::Horizontal((pos.x + 1, pos.y).into()))
+                    {
+                        Ok(())
+                    } else {
+                        Err(())
+                    }
+                }
+                Wall::Vertical(pos) => {
+                    if !self.walls.contains(&Wall::Horizontal(pos))
+                        && !self
+                            .walls
+                            .contains(&Wall::Vertical((pos.x, pos.y.wrapping_sub(1)).into()))
+                        && !self
+                            .walls
+                            .contains(&Wall::Vertical((pos.x, pos.y + 1).into()))
+                    {
+                        Ok(())
+                    } else {
+                        Err(())
+                    }
+                }
+            },
+            Move::MovePawn(pawn_id, pos) => {
+                let pawn_pos = self.pawn_positions[pawn_id as usize];
+                if let Ok(_) =
+                    match (
+                        pawn_pos.x as i8 - pos.x as i8,
+                        pawn_pos.y as i8 - pos.y as i8,
+                    ) {
+                        (x, 0) => {
+                            if x.abs() > 1 || x == 0 {
+                                Err(())
+                            } else {
+                                if self.walls.contains(&Wall::Vertical(
+                                    (pos.x + (x > 0) as u8, pos.y).into(),
+                                )) || self.walls.contains(&Wall::Vertical(
+                                    (pos.x + (x > 0) as u8, pos.y + 1).into(),
+                                )) {
+                                    Err(())
+                                } else {
+                                    Ok(())
+                                }
+                            }
+                        }
+                        (0, y) => {
+                            if y.abs() > 1 || y == 0 {
+                                Err(())
+                            } else {
+                                if self.walls.contains(&Wall::Horizontal(
+                                    (pos.x, pos.y + (y > 0) as u8).into(),
+                                )) || self.walls.contains(&Wall::Horizontal(
+                                    (pos.x + 1, pos.y + (y > 0) as u8).into(),
+                                )) {
+                                    Err(())
+                                } else {
+                                    Ok(())
+                                }
+                            }
+                        }
+                        _ => Err(()),
+                    }
+                {
+                    //TODO: PATHFINDING
+                    Ok(())
+                } else {
+                    Err(())
+                }
+            }
+        }
     }
 
     fn apply_move(&mut self, qmove: Move) -> MoveResult {
@@ -56,8 +123,8 @@ impl Game for Quoridor {
             Move::PlaceWall(wall) => {
                 self.walls.push(wall);
             }
-            Move::MovePawn(movement) => {
-                self.pawn_positions[self.turn_of as usize] = movement;
+            Move::MovePawn(pawn_id, movement) => {
+                self.pawn_positions[pawn_id as usize] = movement;
             }
         }
         self.turn_of += 1;

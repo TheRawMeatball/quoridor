@@ -41,7 +41,7 @@ pub fn input_system(
                                 state.can_highlight = false;
                             }
                         } else if state.highlight_pawn {
-                            let event = MoveEvent(Move::MovePawn(*pos));
+                            let event = MoveEvent(Move::MovePawn(*side, *pos));
                             moves.send(event);
                             state.highlight_pawn = false;
                             state.can_highlight = true;
@@ -58,8 +58,7 @@ pub fn input_system(
                         println!("hovering pawn {:?}!", pos);
                         state.can_highlight = true;
                     } else {
-                        match element_type 
-                        {
+                        match element_type {
                             BoardElement::WallSlot => {}
                             BoardElement::Wall => {}
                             BoardElement::EmptyNode => {
