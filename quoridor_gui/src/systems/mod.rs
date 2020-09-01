@@ -1,4 +1,4 @@
-use bevy::{app::Plugin, ecs::prelude::*, prelude::stage};
+use bevy::prelude::*;
 
 mod board_systems_mod;
 mod quoridor_system_mod;
@@ -25,10 +25,25 @@ impl Default for BoardState {
     }
 }
 
+pub struct ExitTimer {
+    timer: Timer,
+    enabled: bool,
+}
+
+impl Default for ExitTimer {
+    fn default() -> Self {
+        ExitTimer {
+            timer: Timer::from_seconds(2.0, false),
+            enabled: false,
+        }
+    }
+}
+
 impl Plugin for GameSystemsPlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
         app.add_startup_system(setup.system())
             .init_resource::<BoardState>()
+            .init_resource::<ExitTimer>()
             .add_stage_before(stage::UPDATE, "first_pass")
             .add_system_to_stage("first_pass", board_update_system.system())
             .add_system(input_system.system())
