@@ -279,7 +279,7 @@ impl Game for Quoridor {
     fn validate_move(&self, qmove: Move) -> Result<(), ()> {
         match qmove {
             Move::PlaceWall(wall) => {
-                if self.wall_counts[self.turn_of as usize] > 0 {
+                if self.wall_counts[self.turn_of as usize] == 0 {
                     Err(())
                 } else {
                     match wall {

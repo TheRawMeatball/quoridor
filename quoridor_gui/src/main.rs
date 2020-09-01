@@ -8,6 +8,7 @@ mod systems;
 pub(crate) use components::*;
 pub(crate) use constants::*;
 use systems::*;
+use std::error::Error;
 
 pub struct MoveEvent(Move);
 #[derive(Default)]
@@ -18,21 +19,30 @@ fn main() {
 
     let core;
 
-    let mut thread = None;
+    let mut threads = vec![];
 
     if args.contains(&String::from("--host")) {
         let (mut cores, t) = tbmp::new_game::<Quoridor>();
-        thread = Some(t);
+        threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
         core = cores.remove(0);
-        tbmp::remote_agent::host(cores.remove(0), args[2].parse().unwrap());
+        let t = tbmp::remote_agent::host(cores.remove(0), args[2].parse().unwrap());
+        threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
     } else if args.contains(&String::from("--connect")) {
-        core = tbmp::remote_agent::connect(args[2].parse().unwrap());
+        let (c, t) = tbmp::remote_agent::connect(args[2].parse().unwrap());
+        core = c;
+        threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
     } else {
         println!("Specify the --host <PORT> option or the --connect <IP:PORT> option");
         return;
     }
 
-    let msg = core.event_channel.recv().unwrap();
+    let msg = loop {
+        threads[0]().ok();
+        if let Ok(msg) = core.event_channel.try_recv()
+        {
+            break msg;
+        }
+    };
 
     let (game, side) = match msg {
         GameEvent::GameStart(game, side) => (game, side),
@@ -61,13 +71,11 @@ fn main() {
     .add_plugin(GameComponentsPlugin)
     .add_plugin(GameSystemsPlugin);
 
-    if let Some(mut t) = thread {
-        app.add_system(
-            (move || {
-                t().ok();
-            })
-            .system(),
-        );
+    for mut t in threads.into_iter() {
+        let thread = move || {
+            t().ok();
+        };
+        app.add_system(thread.system());
     }
 
     app.run();
