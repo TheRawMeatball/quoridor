@@ -1,6 +1,12 @@
 use bevy::{prelude::*, winit::WinitConfig};
-use quoridor_core::*;
+#[allow(unused_imports)]
+use quoridor_core::{*, 
+    standard_rulebook::StandardQuoridor,
+    free_rulebook::FreeQuoridor,
+};
 use tbmp::*;
+
+pub type Quoridor = FreeQuoridor;
 
 mod components;
 mod constants;
