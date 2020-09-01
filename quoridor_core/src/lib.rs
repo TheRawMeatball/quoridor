@@ -390,7 +390,14 @@ impl Game for Quoridor {
         if self.turn_of == self.player_count {
             self.turn_of = 0;
         }
-        MoveResult::Continue
+
+        if self.pawn_positions[0].y == 8 {
+            MoveResult::Win(0)
+        } else if self.pawn_positions[1].y == 0 {
+            MoveResult::Win(1)
+        } else {
+            MoveResult::Continue
+        }
     }
 
     fn initial_server() -> Self {

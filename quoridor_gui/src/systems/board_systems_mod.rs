@@ -35,7 +35,6 @@ pub fn input_system(
                         state.can_highlight = true;
                     } else if *element_type == BoardElement::EmptyNode {
                         if game.pawn_positions[*side as usize] == *pos {
-                            println!("clicking pawn {:?}!", pos);
                             if state.can_highlight {
                                 state.highlight_pawn = !state.highlight_pawn;
                                 state.can_highlight = false;
@@ -55,7 +54,6 @@ pub fn input_system(
             Interaction::Hovered => {
                 if let Some(pos) = pos {
                     if *pos == game.pawn_positions[game.turn_of as usize] {
-                        println!("hovering pawn {:?}!", pos);
                         state.can_highlight = true;
                     } else {
                         match element_type {
@@ -75,7 +73,6 @@ pub fn input_system(
             Interaction::None => {
                 if let Some(pos) = pos {
                     if *pos == game.pawn_positions[game.turn_of as usize] {
-                        println!("not clicking pawn {:?}!", pos);
                         state.can_highlight = true;
                     }
                 }
