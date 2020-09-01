@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Debug",
             "program": "${workspaceFolder}/target/debug/quoridor_gui",
-            "args": ["--host"],
+            "args": ["--host", "4256"],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build"
         }
