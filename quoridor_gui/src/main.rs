@@ -1,9 +1,6 @@
 use bevy::{prelude::*, winit::WinitConfig};
 #[allow(unused_imports)]
-use quoridor_core::{*, 
-    standard_rulebook::StandardQuoridor,
-    free_rulebook::FreeQuoridor,
-};
+use quoridor_core::{free_rulebook::FreeQuoridor, standard_rulebook::StandardQuoridor, *};
 use tbmp::*;
 
 pub type Quoridor = StandardQuoridor;
@@ -13,8 +10,8 @@ mod constants;
 mod systems;
 pub(crate) use components::*;
 pub(crate) use constants::*;
-use systems::*;
 use std::error::Error;
+use systems::*;
 
 pub struct MoveEvent(Move);
 #[derive(Default)]
@@ -28,8 +25,12 @@ fn main() {
     let mut threads = vec![];
 
     if args.contains(&String::from("--host")) {
-        let (mut cores, t) = tbmp::new_game::<Quoridor>();
-        threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
+        let (mut cores, mut t) = tbmp::new_game::<Quoridor>();
+        threads.push(Box::new(move || {
+            match t() {
+                Ok(_) => Ok(()), Err(e) => Err(e),
+            }
+        }) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
         core = cores.remove(0);
         let mut tb = tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
         let t = move || -> Result<(), Box<dyn Error>> {
@@ -47,23 +48,27 @@ fn main() {
         let (cores, mut game_thread) = tbmp::new_game::<Quoridor>();
         let mut player_threads = tbmp::remote_agent::host(cores, args[2].parse().unwrap());
         loop {
-            game_thread().unwrap();
-            std::thread::sleep(std::time::Duration::from_millis(20));
+            let x = game_thread(); 
             for t in player_threads.iter_mut() {
-                t().unwrap();
+                t().ok();
+            }
+            match x {
+                Ok(MoveResult::Continue) => {},
+                _ => return
             }
         }
     } else {
-        println!(r"Usage: --host <PORT>
-                          --headless <PORT>
-                          --connect <IP:PORT>");
+        println!(
+            r"Usage: --host <PORT>
+                     --headless <PORT>
+                     --connect <IP:PORT>"
+        );
         return;
     }
 
     let msg = loop {
         threads[0]().ok();
-        if let Ok(msg) = core.event_channel.try_recv()
-        {
+        if let Ok(msg) = core.event_channel.try_recv() {
             break msg;
         }
     };

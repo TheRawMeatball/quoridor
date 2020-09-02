@@ -44,5 +44,5 @@ pub enum Move {
     MovePawn(u8, Position),
 }
 
-pub mod standard_rulebook;
 pub mod free_rulebook;
+pub mod standard_rulebook;

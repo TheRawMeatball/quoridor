@@ -16,9 +16,7 @@ pub fn quoridor_system(
             GameEvent::MoveHappened(qmove) => {
                 game.apply_move(qmove);
             }
-            GameEvent::InvalidMove => {
-                println!("Invalid move!")
-            }
+            GameEvent::InvalidMove => println!("Invalid move!"),
             GameEvent::GameEnd(side) => {
                 println!("Player {} wins!", side.unwrap() + 1);
                 exit_timer.enabled = true;
