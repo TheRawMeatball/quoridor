@@ -6,7 +6,7 @@ use quoridor_core::{*,
 };
 use tbmp::*;
 
-pub type Quoridor = FreeQuoridor;
+pub type Quoridor = StandardQuoridor;
 
 mod components;
 mod constants;
@@ -31,14 +31,32 @@ fn main() {
         let (mut cores, t) = tbmp::new_game::<Quoridor>();
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
         core = cores.remove(0);
-        let t = tbmp::remote_agent::host(cores.remove(0), args[2].parse().unwrap());
+        let mut tb = tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
+        let t = move || -> Result<(), Box<dyn Error>> {
+            for t in tb.iter_mut() {
+                t()?;
+            }
+            Ok(())
+        };
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
     } else if args.contains(&String::from("--connect")) {
         let (c, t) = tbmp::remote_agent::connect(args[2].parse().unwrap());
         core = c;
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
+    } else if args.contains(&String::from("--headless")) {
+        let (cores, mut game_thread) = tbmp::new_game::<Quoridor>();
+        let mut player_threads = tbmp::remote_agent::host(cores, args[2].parse().unwrap());
+        loop {
+            game_thread().unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(20));
+            for t in player_threads.iter_mut() {
+                t().unwrap();
+            }
+        }
     } else {
-        println!("Specify the --host <PORT> option or the --connect <IP:PORT> option");
+        println!(r"Usage: --host <PORT>
+                          --headless <PORT>
+                          --connect <IP:PORT>");
         return;
     }
 
