@@ -26,11 +26,11 @@ fn main() {
 
     if args.contains(&String::from("--host")) {
         let (mut cores, mut t) = tbmp::new_game::<Quoridor>();
-        threads.push(Box::new(move || {
-            match t() {
-                Ok(_) => Ok(()), Err(e) => Err(e),
-            }
-        }) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
+        threads.push(Box::new(move || match t() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        })
+            as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
         core = cores.remove(0);
         let mut tb = tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
         let t = move || -> Result<(), Box<dyn Error>> {
@@ -44,24 +44,9 @@ fn main() {
         let (c, t) = tbmp::remote_agent::connect(args[2].parse().unwrap());
         core = c;
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
-    } else if args.contains(&String::from("--headless")) {
-        let (cores, mut game_thread) = tbmp::new_game::<Quoridor>();
-        let mut player_threads = tbmp::remote_agent::host(cores, args[2].parse().unwrap());
-        loop {
-            let x = game_thread(); 
-            for t in player_threads.iter_mut() {
-                t().ok();
-            }
-            match x {
-                Ok(MoveResult::Continue) => {},
-                _ => return
-            }
-        }
     } else {
         println!(
-            r"Usage: --host <PORT>
-                     --headless <PORT>
-                     --connect <IP:PORT>"
+            r"Usage: --host <PORT> / --connect <IP:PORT>"
         );
         return;
     }

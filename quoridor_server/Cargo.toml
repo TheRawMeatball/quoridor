@@ -1,5 +1,5 @@
 [package]
-name = "quoridor_gui"
+name = "quoridor_server"
 version = "0.1.0"
 authors = ["TheRawMeatball <therawmeatball@gmail.com>"]
 edition = "2018"
@@ -10,5 +10,3 @@ edition = "2018"
 quoridor_core = { path = "../quoridor_core" }
 tbmp = { git = "https://github.com/TheRawMeatball/tbmp" }
 #tbmp = { path = "../../tbmp/tbmp" }
-bevy = { git = "https://github.com/therawmeatball/bevy" }
-rand = "0.7.2"
