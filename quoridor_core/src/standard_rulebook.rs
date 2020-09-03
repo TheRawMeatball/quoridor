@@ -336,6 +336,7 @@ impl Game for StandardQuoridor {
     fn apply_move(&mut self, qmove: Move) -> MoveResult {
         match qmove {
             Move::PlaceWall(wall) => {
+                self.wall_counts[self.turn_of as usize]-=1;
                 self.walls.insert(wall);
             }
             Move::MovePawn(pawn_id, movement) => {
