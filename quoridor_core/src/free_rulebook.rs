@@ -1,12 +1,11 @@
 use super::*;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct FreeQuoridor {
     pub wall_counts: [u8; 2],
-    pub pawn_positions: [Position; 2],
+    pub pawn_positions: [Position; 4],
     pub walls: HashSet<Wall>,
     pub turn_of: PlayerID,
-    pub player_count: u8,
     pub turns_left: u8,
 }
 
@@ -31,13 +30,12 @@ impl Game for FreeQuoridor {
             None => {
                 self.turns_left = 1;
                 self.turn_of += 1;
-                if self.turn_of == self.player_count {
+                if self.turn_of == Self::PLAYER_COUNT {
                     self.turn_of = 0;
                 }
             }
-            _ => {}
+            Some(i) => self.turns_left = i,
         }
-        
 
         MoveResult::Continue
     }
@@ -45,10 +43,9 @@ impl Game for FreeQuoridor {
     fn initial_server() -> Self {
         FreeQuoridor {
             wall_counts: [10, 10],
-            pawn_positions: [(4, 0).into(), (4, 8).into()],
+            pawn_positions: [(2, 0).into(), (6, 0).into(), (2, 8).into(), (6, 8).into()],
             walls: HashSet::new(),
             turn_of: 0,
-            player_count: 2,
             turns_left: 1,
         }
     }

@@ -45,9 +45,7 @@ fn main() {
         core = c;
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
     } else {
-        println!(
-            r"Usage: --host <PORT> / --connect <IP:PORT>"
-        );
+        println!(r"Usage: --host <PORT> / --connect <IP:PORT>");
         return;
     }
 
@@ -57,6 +55,8 @@ fn main() {
             break msg;
         }
     };
+
+    println!("{:?}", msg);
 
     let (game, side) = match msg {
         GameEvent::GameStart(game, side) => (game, side),

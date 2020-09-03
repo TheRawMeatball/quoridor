@@ -12,7 +12,7 @@ pub struct BoardMaterials {
 impl FromResources for BoardMaterials {
     fn from_resources(resources: &Resources) -> Self {
         let mut materials = resources.get_mut::<Assets<ColorMaterial>>().unwrap();
-        let player_count = resources.get_mut::<Quoridor>().unwrap().player_count;
+        let pawn_count = resources.get_mut::<Quoridor>().unwrap().pawn_positions.len() as u8;
 
         BoardMaterials {
             base_mat_handle: materials.add(Color::rgb(0.08, 0.01, 0.003).into()),
@@ -20,8 +20,8 @@ impl FromResources for BoardMaterials {
             select: materials.add(Color::rgb(0.7, 0.7, 0.7).into()),
             highlight: materials.add(Color::rgb(0.3, 0.3, 0.3).into()),
             wall_mat_handle: materials.add(Color::rgb(0.32, 0.16, 0.04).into()),
-            pawn_materials: (0..player_count).fold(vec![], |mut vec, i| {
-                let color = to_rgb(((256 / player_count as u16) as u8) * i, 255, 128);
+            pawn_materials: (0..pawn_count).fold(vec![], |mut vec, i| {
+                let color = to_rgb(((256 / pawn_count as u16) as u8) * i, 255, 128);
                 vec.push(materials.add(Color::rgb_u8(color.0, color.1, color.2).into()));
                 vec
             }),

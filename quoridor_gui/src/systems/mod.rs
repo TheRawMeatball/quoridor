@@ -12,14 +12,14 @@ pub struct GameSystemsPlugin;
 
 #[derive(Debug)]
 pub struct BoardState {
-    highlight_pawn: bool,
+    highlight_pawn: Option<quoridor_core::Position>,
     can_highlight: bool,
 }
 
 impl Default for BoardState {
     fn default() -> Self {
         Self {
-            highlight_pawn: false,
+            highlight_pawn: None,
             can_highlight: true,
         }
     }

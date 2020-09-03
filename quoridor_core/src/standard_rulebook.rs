@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct StandardQuoridor {
     pub wall_counts: [u8; 2],
     pub pawn_positions: [Position; 2],
@@ -336,7 +336,7 @@ impl Game for StandardQuoridor {
     fn apply_move(&mut self, qmove: Move) -> MoveResult {
         match qmove {
             Move::PlaceWall(wall) => {
-                self.wall_counts[self.turn_of as usize]-=1;
+                self.wall_counts[self.turn_of as usize] -= 1;
                 self.walls.insert(wall);
             }
             Move::MovePawn(pawn_id, movement) => {

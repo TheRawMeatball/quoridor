@@ -1,10 +1,9 @@
-use quoridor_core::*;
 use tbmp::*;
-//use standard_rulebook::StandardQuoridor;
-use free_rulebook::FreeQuoridor;
+#[allow(unused_imports)]
+use quoridor_core::{free_rulebook::FreeQuoridor, standard_rulebook::StandardQuoridor};
 use std::env;
 
-type Quoridor = FreeQuoridor;
+type Quoridor = StandardQuoridor;
 
 fn main() {
     let args = env::args().collect::<Vec<_>>();

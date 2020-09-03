@@ -31,18 +31,35 @@ pub fn input_system(
                             }
                         }));
                         moves.send(event);
-                        state.highlight_pawn = false;
+                        state.highlight_pawn = None;
                         state.can_highlight = true;
                     } else if *element_type == BoardElement::EmptyNode {
-                        if game.pawn_positions[*side as usize] == *pos {
+                        if owned_pawn_check(*side, &game, *pos)
+                        {
                             if state.can_highlight {
-                                state.highlight_pawn = !state.highlight_pawn;
+                                state.highlight_pawn = if let Some(highlight_pos) = state.highlight_pawn {
+                                    if highlight_pos == *pos {
+                                        None
+                                    } else {
+                                        Some(*pos)
+                                    }
+                                } else {
+                                    Some(*pos)
+                                };
                                 state.can_highlight = false;
                             }
-                        } else if state.highlight_pawn {
-                            let event = MoveEvent(Move::MovePawn(*side, *pos));
+                        } else if state.highlight_pawn.is_some() {
+                            let event = MoveEvent(Move::MovePawn(
+                                game.pawn_positions
+                                    .iter()
+                                    .enumerate()
+                                    .find(|(_, &x)| x == state.highlight_pawn.unwrap())
+                                    .unwrap()
+                                    .0 as u8,
+                                *pos,
+                            ));
                             moves.send(event);
-                            state.highlight_pawn = false;
+                            state.highlight_pawn = None;
                             state.can_highlight = true;
                         }
                     }
@@ -53,14 +70,14 @@ pub fn input_system(
             }
             Interaction::Hovered => {
                 if let Some(pos) = pos {
-                    if *pos == game.pawn_positions[game.turn_of as usize] {
+                    if owned_pawn_check(*side, &game, *pos) {
                         state.can_highlight = true;
                     } else {
                         match element_type {
                             BoardElement::WallSlot => {}
                             BoardElement::Wall => {}
                             BoardElement::EmptyNode => {
-                                if state.highlight_pawn {
+                                if state.highlight_pawn.is_some() {
                                     *material = board_materials.highlight;
                                 }
                             }
@@ -72,7 +89,7 @@ pub fn input_system(
             }
             Interaction::None => {
                 if let Some(pos) = pos {
-                    if *pos == game.pawn_positions[game.turn_of as usize] {
+                    if owned_pawn_check(*side, &game, *pos) {
                         state.can_highlight = true;
                     }
                 }
@@ -85,7 +102,7 @@ pub fn board_update_system(
     state: Res<BoardState>,
     board_materials: Res<BoardMaterials>,
     game: Res<Quoridor>,
-    side: Res<u8>,
+    //side: Res<u8>,
     mut query: Query<(
         &Button,
         &mut Handle<ColorMaterial>,
@@ -127,8 +144,14 @@ pub fn board_update_system(
                         .zip(&board_materials.pawn_materials)
                         .find(|(pawn, _)| pos == *pawn)
                         .map(|(_, mat)| {
-                            if state.highlight_pawn && game.pawn_positions[*side as usize] == *pos {
-                                &board_materials.select
+                            if let Some(p) = state.highlight_pawn
+                            {
+                                if p == *pos {
+                                    &board_materials.select
+                                }
+                                else {
+                                    mat
+                                }
                             } else {
                                 mat
                             }
@@ -142,4 +165,13 @@ pub fn board_update_system(
             BoardElement::Wall => board_materials.wall_mat_handle,
         };
     }
+}
+
+fn owned_pawn_check(side: PlayerID, game: &Res<Quoridor>, pos: Position) -> bool {
+    let pawns_per_player = game.pawn_positions.len() as u8 / Quoridor::PLAYER_COUNT;
+    game.pawn_positions[(side * pawns_per_player) as usize
+                            ..((side + 1) * pawns_per_player) as usize]
+                            .iter()
+                            .find(|&&x| x == pos)
+                            .is_some()
 }
