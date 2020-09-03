@@ -7,6 +7,7 @@ pub struct FreeQuoridor {
     pub walls: HashSet<Wall>,
     pub turn_of: PlayerID,
     pub player_count: u8,
+    pub turns_left: u8,
 }
 
 impl Game for FreeQuoridor {
@@ -26,10 +27,17 @@ impl Game for FreeQuoridor {
                 self.pawn_positions[pawn_id as usize] = movement;
             }
         }
-        self.turn_of += 1;
-        if self.turn_of == self.player_count {
-            self.turn_of = 0;
+        match self.turns_left.checked_sub(1) {
+            None => {
+                self.turns_left = 1;
+                self.turn_of += 1;
+                if self.turn_of == self.player_count {
+                    self.turn_of = 0;
+                }
+            }
+            _ => {}
         }
+        
 
         MoveResult::Continue
     }
@@ -41,6 +49,7 @@ impl Game for FreeQuoridor {
             walls: HashSet::new(),
             turn_of: 0,
             player_count: 2,
+            turns_left: 1,
         }
     }
 
