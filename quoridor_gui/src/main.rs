@@ -1,17 +1,19 @@
 use bevy::{prelude::*, winit::WinitConfig};
+use bimap::BiMap;
 #[allow(unused_imports)]
-use quoridor_core::{free_rulebook::FreeQuoridor, standard_rulebook::StandardQuoridor, *};
+use quoridor_core::{rulebooks::*, *};
 use tbmp::*;
-
-pub type Quoridor = StandardQuoridor;
 
 mod components;
 mod constants;
 mod systems;
+
 pub(crate) use components::*;
 pub(crate) use constants::*;
 use std::error::Error;
 use systems::*;
+
+generate_rulebook![StandardQuoridor, FreeQuoridor];
 
 pub struct MoveEvent(Move);
 #[derive(Default)]
@@ -25,7 +27,7 @@ fn main() {
     let mut threads = vec![];
 
     if args.contains(&String::from("--host")) {
-        let (mut cores, mut t) = tbmp::new_game::<Quoridor>();
+        let (mut cores, mut t) = tbmp::new_game::<QGame<FreeQuoridor>>();
         threads.push(Box::new(move || match t() {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
@@ -56,8 +58,6 @@ fn main() {
         }
     };
 
-    println!("{:?}", msg);
-
     let (game, side) = match msg {
         GameEvent::GameStart(game, side) => (game, side),
         _ => unreachable!(),
@@ -74,8 +74,8 @@ fn main() {
         ..Default::default()
     })
     .add_default_plugins()
-    .add_resource(core)
-    .add_resource(game)
+    .add_resource(QAgent::FreeQuoridor(core))
+    .add_resource(Quoridor::FreeQuoridor(game))
     .add_resource(side)
     .add_event::<MoveEvent>()
     //// Adds frame time diagnostics

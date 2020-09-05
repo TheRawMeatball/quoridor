@@ -1,23 +1,23 @@
 use crate::*;
 use bevy::app::AppExit;
 
-pub fn quoridor_system(
+pub(crate) fn quoridor_system(
     time: Res<Time>,
     mut exit_event: ResMut<Events<AppExit>>,
     mut exit_timer: ResMut<ExitTimer>,
-    core: Res<AgentCore<Quoridor>>,
+    core: Res<QAgent>,
     mut game: ResMut<Quoridor>,
     side: Res<u8>,
     mut state: Local<MoveEventListenerState>,
     moves: Res<Events<MoveEvent>>,
 ) {
-    if let Ok(event) = core.event_channel.try_recv() {
+    if let Ok(event) = core.recv_event() {
         match event {
-            GameEvent::MoveHappened(qmove) => {
-                game.apply_move(qmove);
+            QGameEvent::MoveHappened(qmove) => {
+                game.apply_move(&qmove);
             }
-            GameEvent::InvalidMove => println!("Invalid move!"),
-            GameEvent::GameEnd(side) => {
+            QGameEvent::InvalidMove => println!("Invalid move!"),
+            QGameEvent::GameEnd(side) => {
                 println!("Player {} wins!", side.unwrap() + 1);
                 exit_timer.enabled = true;
             }
@@ -27,8 +27,8 @@ pub fn quoridor_system(
     }
 
     if let Some(qmove) = state.0.latest(&moves) {
-        if *side == game.turn_of {
-            core.move_channel.send(qmove.0).unwrap();
+        if *side == game.turn_of() {
+            core.send_move(RulebookMove::wrap(&game, &qmove.0)).unwrap();
         }
     }
 

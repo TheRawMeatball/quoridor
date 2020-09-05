@@ -11,7 +11,16 @@
             "program": "${workspaceFolder}/target/debug/quoridor_gui",
             "args": ["--connect", "127.0.0.1:2200"],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build"
+            "preLaunchTask": "Build GUI"
+        },
+        {
+            "name": "Web",
+            "type": "firefox",
+            "request": "launch",
+            "file": "${workspaceFolder}/quoridor_client_web/index.html",
+            "keepProfileChanges": true,
+            "profile": "default",
+            "preLaunchTask": "Build Web"
         }
     ]
 }

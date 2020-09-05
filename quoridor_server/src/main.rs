@@ -1,9 +1,9 @@
-use tbmp::*;
 #[allow(unused_imports)]
-use quoridor_core::{free_rulebook::FreeQuoridor, standard_rulebook::StandardQuoridor};
+use quoridor_core::{rulebooks::*, QGame};
 use std::env;
+use tbmp::*;
 
-type Quoridor = StandardQuoridor;
+type Quoridor = QGame<FreeQuoridor>;
 
 fn main() {
     let args = env::args().collect::<Vec<_>>();
@@ -11,7 +11,7 @@ fn main() {
     loop {
         println!("NEW GAME");
         let (cores, mut game_thread) = tbmp::new_game::<Quoridor>();
-        let mut player_threads = tbmp::remote_agent::host(cores, args[2].parse().unwrap());
+        let mut player_threads = tbmp::remote_agent::host(cores, args[1].parse().unwrap());
         loop {
             let x = game_thread();
             for t in player_threads.iter_mut() {

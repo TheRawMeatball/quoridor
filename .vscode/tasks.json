@@ -4,9 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
+            "label": "Build GUI",
             "type": "shell",
             "command": "cargo build",
+            "group": "build",
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "label": "Build Web",
+            "type": "shell",
+            "options": {"cwd": "${workspaceFolder}/quoridor_client_web"},
+            "command": "wasm-pack",
+            "args": ["build", "--debug", "--target", "web"],
             "group": "build",
             "problemMatcher": [
                 "$rustc"

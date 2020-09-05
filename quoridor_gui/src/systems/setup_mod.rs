@@ -50,7 +50,7 @@ pub fn setup(mut commands: Commands, board_mats: ResMut<BoardMaterials>) {
                             ..Default::default()
                         })
                         .with(BoardElement::WallSlot)
-                        .with(Wall::Vertical((x, y - 1).into()))
+                        .with(Wall::vertical(Position::from((x, y - 1))))
                         // Corner
                         .spawn(ButtonComponents {
                             style: Style {
@@ -110,7 +110,7 @@ pub fn setup(mut commands: Commands, board_mats: ResMut<BoardMaterials>) {
                                 ..Default::default()
                             })
                             .with(BoardElement::WallSlot)
-                            .with(Wall::Horizontal((x, 0).into()));
+                            .with(Wall::horizontal(Position::from((x, 0))));
 
                         for y in 0..9 {
                             parent
@@ -143,7 +143,7 @@ pub fn setup(mut commands: Commands, board_mats: ResMut<BoardMaterials>) {
                                     ..Default::default()
                                 })
                                 .with(BoardElement::WallSlot)
-                                .with(Wall::Horizontal((x, y + 1).into()));
+                                .with(Wall::horizontal(Position::from((x, y + 1))));
                         }
                     })
                     // Wall sectors
