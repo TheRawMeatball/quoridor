@@ -295,33 +295,6 @@ macro_rules! generate_rulebook {
             }
         }
 
-        pub(crate) trait AgentList {
-            fn host(self, socket: u16, game_type: QGameType) -> Vec<Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>>;
-        }
-
-        impl AgentList for Vec<QAgent> {
-            fn host(self, socket: u16, game_type: QGameType) ->  Vec<Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>> {
-                match game_type {
-                    $(
-                        QGameType::$rulebook_ident => {
-                            self
-                                .into_iter()
-                                .map(|core| {
-                                    match core {
-                                        QAgent::$rulebook_ident(c) => {
-                                            Box::new(tbmp::remote_agent::host(vec![c], socket).remove(0)) as
-                                                Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>
-                                        },
-                                        _ => unreachable!()
-                                    }
-                                })
-                                .collect()
-                        },
-                    )*
-                }
-            }
-        }
-
         impl RulebookMove {
             pub(crate) fn wrap(game: &Quoridor, qmove: &Move) -> Self {
                 match game {
