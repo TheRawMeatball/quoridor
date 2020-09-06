@@ -3,7 +3,7 @@
 use bimap::BiMap;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::collections::hash_set::HashSet;
-use tbmp::*;
+use tbmp_core::*;
 
 #[derive(Copy, Clone, Hash, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Position {
