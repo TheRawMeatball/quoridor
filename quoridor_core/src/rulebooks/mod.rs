@@ -310,7 +310,7 @@ macro_rules! generate_rulebook {
                 match self {
                     $(
                         Self::$rulebook_ident => {
-                            let (cores, t) = tbmp::new_game::<QGame<$rulebook_ident>>();
+                            let (cores, t) = tbmp_core::new_game::<QGame<$rulebook_ident>>();
                             (cores
                                 .into_iter()
                                 .map(|core| {
