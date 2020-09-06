@@ -1,17 +1,24 @@
 #[allow(unused_imports)]
-use quoridor_core::{rulebooks::*, QGame};
+use quoridor_core::{rulebooks::*, *};
 use std::env;
+use std::error::Error;
+use bimap::BiMap;
 use tbmp::*;
 
-type Quoridor = QGame<FreeQuoridor>;
+generate_rulebook! {
+    FreeQuoridor, 
+    StandardQuoridor,
+}
 
 fn main() {
     let args = env::args().collect::<Vec<_>>();
 
+    let game_type = QGameType::StandardQuoridor;
+
     loop {
         println!("NEW GAME");
-        let (cores, mut game_thread) = tbmp::new_game::<Quoridor>();
-        let mut player_threads = tbmp::remote_agent::host(cores, args[1].parse().unwrap());
+        let (cores, mut game_thread) = game_type.new_game();
+        let mut player_threads = cores.host(args[1].parse().unwrap(), game_type);
         loop {
             let x = game_thread();
             for t in player_threads.iter_mut() {

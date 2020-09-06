@@ -13,13 +13,19 @@ pub(crate) use constants::*;
 use std::error::Error;
 use systems::*;
 
-generate_rulebook![StandardQuoridor, FreeQuoridor];
+generate_rulebook!{
+    StandardQuoridor, 
+    FreeQuoridor,
+}
 
 pub struct MoveEvent(Move);
 #[derive(Default)]
 pub struct MoveEventListenerState(EventReader<MoveEvent>);
 
 fn main() {
+
+    let game_type = QGameType::StandardQuoridor;
+
     let args: Vec<String> = std::env::args().collect();
 
     let core;
@@ -27,14 +33,14 @@ fn main() {
     let mut threads = vec![];
 
     if args.contains(&String::from("--host")) {
-        let (mut cores, mut t) = tbmp::new_game::<QGame<FreeQuoridor>>();
+        let (mut cores, mut t) = game_type.new_game();
         threads.push(Box::new(move || match t() {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
         })
             as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
         core = cores.remove(0);
-        let mut tb = tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
+        let mut tb = cores.host(args[2].parse().unwrap(), game_type);//tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
         let t = move || -> Result<(), Box<dyn Error>> {
             for t in tb.iter_mut() {
                 t()?;
@@ -43,7 +49,7 @@ fn main() {
         };
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
     } else if args.contains(&String::from("--connect")) {
-        let (c, t) = tbmp::remote_agent::connect(args[2].parse().unwrap());
+        let (c, t) = QAgent::connect(args[2].parse().unwrap(), game_type);
         core = c;
         threads.push(Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
     } else {
@@ -53,13 +59,13 @@ fn main() {
 
     let msg = loop {
         threads[0]().ok();
-        if let Ok(msg) = core.event_channel.try_recv() {
+        if let Ok(msg) = core.recv_event() {
             break msg;
         }
     };
 
     let (game, side) = match msg {
-        GameEvent::GameStart(game, side) => (game, side),
+        QGameEvent::GameStart(game, side) => (game, side),
         _ => unreachable!(),
     };
 
@@ -74,8 +80,8 @@ fn main() {
         ..Default::default()
     })
     .add_default_plugins()
-    .add_resource(QAgent::FreeQuoridor(core))
-    .add_resource(Quoridor::FreeQuoridor(game))
+    .add_resource(core)
+    .add_resource(game)
     .add_resource(side)
     .add_event::<MoveEvent>()
     //// Adds frame time diagnostics
