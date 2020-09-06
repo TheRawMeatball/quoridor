@@ -1,5 +1,5 @@
 [workspace]
-members = ["quoridor_gui", "quoridor_core", "quoridor_server", "quoridor_server_web", "quoridor_client_web"]
+members = ["quoridor_gui", "quoridor_core", "quoridor_server", "quoridor_server_web"]
 
 [profile.dev.package."*"]
 opt-level = 3
