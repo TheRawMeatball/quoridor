@@ -11,7 +11,7 @@ macro_rules! generate_rulebook {
                 $rulebook_ident(QGame<$rulebook_ident>),
             )*
         }
-        
+
         #[derive(Copy, Clone, Debug)]
         pub(crate) enum QGameType {
             $(
@@ -70,6 +70,50 @@ macro_rules! generate_rulebook {
             }
         }
 
+        pub(crate) enum QSender {
+            $(
+                $rulebook_ident(Sender<<$rulebook_ident as Rulebook>::Move>),
+            )*
+        }
+
+        impl QSender {
+            pub(crate) fn send_move(&self, qmove: RulebookMove) -> Result<(), Box<dyn Error>> {
+                match self {
+                    $(
+                        Self::$rulebook_ident(c) => c.send(match qmove {
+                            RulebookMove::$rulebook_ident(qmv) => qmv,
+                            _ => unreachable!(),
+                        })?,
+                    )*
+                };
+                Ok(())
+            }
+        }
+
+        pub(crate) enum QReceiver {
+            $(
+                $rulebook_ident(Receiver<GameEvent<QGame<$rulebook_ident>>>),
+            )*
+        }
+
+        impl QReceiver {
+            pub(crate) fn recv_event(&self) -> Result<QGameEvent, Box<dyn Error>> {
+                match self {
+                    $(
+                        Self::$rulebook_ident(c) => Ok(match c.try_recv()? {
+                            GameEvent::GameStart(g, id) => QGameEvent::GameStart(Quoridor::$rulebook_ident(g), id),
+                            GameEvent::MoveHappened(qmove) => QGameEvent::MoveHappened(RulebookMove::$rulebook_ident(qmove)),
+                            GameEvent::YourTurn => QGameEvent::YourTurn,
+                            GameEvent::ValidMove => QGameEvent::ValidMove,
+                            GameEvent::InvalidMove => QGameEvent::InvalidMove,
+                            GameEvent::OpponentQuit => QGameEvent::OpponentQuit,
+                            GameEvent::GameEnd(id) => QGameEvent::GameEnd(id),
+                        }),
+                    )*
+                }
+            }
+        }
+
         impl QAgent {
             pub(crate) fn recv_event(&self) -> Result<QGameEvent, Box<dyn Error>> {
                 match self {
@@ -97,6 +141,14 @@ macro_rules! generate_rulebook {
                     )*
                 };
                 Ok(())
+            }
+
+            pub(crate) fn split(self) -> (QSender, QReceiver) {
+                match self {
+                    $(
+                        Self::$rulebook_ident(c) => (QSender::$rulebook_ident(c.move_channel), QReceiver::$rulebook_ident(c.event_channel)),
+                    )*
+                }
             }
 
             pub(crate) fn connect(addr: std::net::SocketAddr, game_type: QGameType) -> (QAgent, Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>) {
@@ -206,7 +258,7 @@ macro_rules! generate_rulebook {
                 $rulebook_ident(QGame<$rulebook_ident>),
             )*
         }
-        
+
         #[derive(Copy, Clone, Debug)]
         pub(crate) enum QGameType {
             $(
@@ -265,6 +317,50 @@ macro_rules! generate_rulebook {
             }
         }
 
+        pub(crate) enum QSender {
+            $(
+                $rulebook_ident(Sender<<$rulebook_ident as Rulebook>::Move>),
+            )*
+        }
+
+        impl QSender {
+            pub(crate) fn send_move(&self, qmove: RulebookMove) -> Result<(), Box<dyn Error>> {
+                match self {
+                    $(
+                        Self::$rulebook_ident(c) => c.send(match qmove {
+                            RulebookMove::$rulebook_ident(qmv) => qmv,
+                            _ => unreachable!(),
+                        })?,
+                    )*
+                };
+                Ok(())
+            }
+        }
+
+        pub(crate) enum QReceiver {
+            $(
+                $rulebook_ident(Receiver<GameEvent<QGame<$rulebook_ident>>>),
+            )*
+        }
+
+        impl QReceiver {
+            pub(crate) fn recv_event(&self) -> Result<QGameEvent, Box<dyn Error>> {
+                match self {
+                    $(
+                        Self::$rulebook_ident(c) => Ok(match c.try_recv()? {
+                            GameEvent::GameStart(g, id) => QGameEvent::GameStart(Quoridor::$rulebook_ident(g), id),
+                            GameEvent::MoveHappened(qmove) => QGameEvent::MoveHappened(RulebookMove::$rulebook_ident(qmove)),
+                            GameEvent::YourTurn => QGameEvent::YourTurn,
+                            GameEvent::ValidMove => QGameEvent::ValidMove,
+                            GameEvent::InvalidMove => QGameEvent::InvalidMove,
+                            GameEvent::OpponentQuit => QGameEvent::OpponentQuit,
+                            GameEvent::GameEnd(id) => QGameEvent::GameEnd(id),
+                        }),
+                    )*
+                }
+            }
+        }
+
         impl QAgent {
             pub(crate) fn recv_event(&self) -> Result<QGameEvent, Box<dyn Error>> {
                 match self {
@@ -292,6 +388,14 @@ macro_rules! generate_rulebook {
                     )*
                 };
                 Ok(())
+            }
+
+            pub(crate) fn split(self) -> (QSender, QReceiver) {
+                match self {
+                    $(
+                        Self::$rulebook_ident(c) => (QSender::$rulebook_ident(c.move_channel), QReceiver::$rulebook_ident(c.event_channel)),
+                    )*
+                }
             }
         }
 

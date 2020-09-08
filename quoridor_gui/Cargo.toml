@@ -13,3 +13,4 @@ tbmp = { git = "https://github.com/TheRawMeatball/tbmp" }
 bevy = { git = "https://github.com/therawmeatball/bevy" }
 rand = "0.7.2"
 bimap = { version = "0.5.2", features = ["serde"] }
+crossbeam-channel = "0.4.3"

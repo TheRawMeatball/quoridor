@@ -1,12 +1,13 @@
+use bimap::BiMap;
+use crossbeam_channel::{Receiver, Sender};
 #[allow(unused_imports)]
 use quoridor_core::{rulebooks::*, *};
 use std::env;
 use std::error::Error;
-use bimap::BiMap;
 use tbmp::*;
 
 generate_rulebook! {
-    FreeQuoridor, 
+    FreeQuoridor,
     StandardQuoridor,
 }
 

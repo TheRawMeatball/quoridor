@@ -1,5 +1,6 @@
 use bevy::{prelude::*, winit::WinitConfig};
 use bimap::BiMap;
+use crossbeam_channel::{Receiver, Sender};
 #[allow(unused_imports)]
 use quoridor_core::{rulebooks::*, *};
 use tbmp::*;
@@ -13,8 +14,8 @@ pub(crate) use constants::*;
 use std::error::Error;
 use systems::*;
 
-generate_rulebook!{
-    StandardQuoridor, 
+generate_rulebook! {
+    StandardQuoridor,
     FreeQuoridor,
 }
 
@@ -23,11 +24,9 @@ pub struct MoveEvent(Move);
 pub struct MoveEventListenerState(EventReader<MoveEvent>);
 
 fn main() {
-
     let game_type = QGameType::StandardQuoridor;
 
     let args: Vec<String> = std::env::args().collect();
-
     let core;
 
     let mut threads = vec![];
@@ -40,7 +39,7 @@ fn main() {
         })
             as Box<dyn Send + Sync + FnMut() -> Result<(), Box<dyn Error>>>);
         core = cores.remove(0);
-        let mut tb = cores.host(args[2].parse().unwrap(), game_type);//tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
+        let mut tb = cores.host(args[2].parse().unwrap(), game_type); //tbmp::remote_agent::host(vec![cores.remove(0)], args[2].parse().unwrap());
         let t = move || -> Result<(), Box<dyn Error>> {
             for t in tb.iter_mut() {
                 t()?;

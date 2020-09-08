@@ -11,3 +11,4 @@ quoridor_core = { path = "../quoridor_core" }
 tbmp = { git = "https://github.com/TheRawMeatball/tbmp" }
 #tbmp = { path = "../../tbmp/tbmp" }
 bimap = { version = "0.5.2", features = ["serde"] }
+crossbeam-channel = "0.4.3"
