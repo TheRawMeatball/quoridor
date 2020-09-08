@@ -201,6 +201,14 @@ macro_rules! generate_rulebook {
         }
 
         impl QGameType {
+            fn of(game: &Quoridor) -> Self {
+                match game {
+                    $(
+                        Quoridor::$rulebook_ident(_) => Self::$rulebook_ident,
+                    )*
+                }
+            }
+
             pub(crate) fn new_game(&self) -> (Vec<QAgent>, Box<dyn Send + Sync + FnMut() -> Result<MoveResult, Box<dyn Error>>>) {
                 match self {
                     $(
@@ -424,6 +432,14 @@ macro_rules! generate_rulebook {
                                 Box::new(t) as Box<dyn Send + Sync + FnMut() -> Result<MoveResult, Box<dyn Error>>>
                             )
                         },
+                    )*
+                }
+            }
+
+            fn of(game: &Quoridor) -> Self {
+                match game {
+                    $(
+                        Quoridor::$rulebook_ident(_) => Self::$rulebook_ident,
                     )*
                 }
             }
