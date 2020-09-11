@@ -69,6 +69,7 @@ pub trait QGTrait: Send + Sync {
     fn pawns(&self) -> &BiMap<PawnID, Position>;
     fn walls(&self) -> &HashSet<Wall>;
     fn turn_of(&self) -> PlayerID;
+    fn wall_counts(&self) -> std::slice::Iter<u8>;
 }
 
 impl<Rb: Rulebook> QGTrait for QGame<Rb> {
@@ -82,6 +83,10 @@ impl<Rb: Rulebook> QGTrait for QGame<Rb> {
 
     fn turn_of(&self) -> u8 {
         self.turn_of
+    }
+
+    fn wall_counts(&self) -> std::slice::Iter<u8> {
+        self.wall_counts.iter()
     }
 }
 
