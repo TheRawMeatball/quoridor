@@ -477,6 +477,14 @@ macro_rules! generate_rulebook {
                     )*
                 }
             }
+
+            fn wall_counts(&self) -> std::slice::Iter<u8> {
+                match self {
+                    $(
+                        Self::$rulebook_ident(g) => g.wall_counts.iter(),
+                    )*
+                }
+            }
         }
     };
 }
