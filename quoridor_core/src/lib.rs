@@ -1,5 +1,3 @@
-#![feature(min_const_generics)]
-
 use bimap::BiMap;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::collections::hash_set::HashSet;
