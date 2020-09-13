@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    </head>
+    <body>
+        <form action="/lobby/new" method="POST">
+            <label for="gtype">Game type:</label><br>
+            <input type="text" id="gtype" name="game_type"><br>
+            <label for="name">Lobby name:</label><br>
+            <input type="text" id="name" name="name"><br><br>
+            <input type="submit" value="Submit">
+        </form>
+        <ul id="list">
+
+        </ul>
+    </body>
+    <style type="text/css">
+        body {
+            color: #aaa;
+            background-color: #222;
+        }
+    </style>
+    <script>
+        let listHtml = document.getElementById("list");
+        fetch("/lobby/list")
+            .then(resp => resp.json()
+            .then(list => {
+                list.forEach(element => {
+                    let li = document.createElement("li");
+                    let text = document.createTextNode("Type: " + element.game_type + ", Name: " + element.name);
+                    let connectText = document.createTextNode("Connect");
+                    let button = document.createElement("button");
+                    button.appendChild(connectText);
+                    button.onclick = () => {
+                        window.location = "/game/" + element.game_type + "/" + element.name;
+                    };
+                    li.appendChild(text);
+                    li.appendChild(button);
+                    listHtml.appendChild(li);
+                });
+            }));
+    </script>
+</html>
+

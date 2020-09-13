@@ -1,5 +1,5 @@
 [package]
-name = "quoridor_server"
+name = "quoridor_server_tcp"
 version = "0.1.0"
 authors = ["TheRawMeatball <therawmeatball@gmail.com>"]
 edition = "2018"
